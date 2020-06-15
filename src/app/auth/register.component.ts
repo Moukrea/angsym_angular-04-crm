@@ -2,10 +2,17 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { UserService } from './user.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 @Component({
 	selector: 'app-register',
 	template: `<h1>Inscription</h1>
+		<div class="alert alert-info" *ngIf="loading">
+			En cours de chargement...
+		</div>
+		<div class="alert alert-danger" *ngIf="error">
+			Une erreur inconnue est survenue, merci de réessayer plus tard
+		</div>
 		<form [formGroup]="form" (ngSubmit)="handleSubmit()">
 			<div class="form-group">
 				<input
@@ -76,8 +83,10 @@ export class RegisterComponent implements OnInit {
 		confirmation: new FormControl(''),
 	});
 	submitted = false;
+	loading = false;
+	error = false;
 
-	constructor(private userService: UserService) {}
+	constructor(private userService: UserService, private router: Router) {}
 
 	ngOnInit(): void {}
 
@@ -86,11 +95,22 @@ export class RegisterComponent implements OnInit {
 	}
 
 	handleSubmit() {
+		this.loading = true;
+		this.error = false;
+
 		this.userService.create(this.form.value).subscribe(
 			(user) => {
-				console.log(user);
+				this.loading = false;
+				this.error = false;
+				this.router.navigateByUrl('/login');
 			},
 			(error: HttpErrorResponse) => {
+				this.loading = false;
+				this.error = true;
+
+				if (error.status === 400 && error.error.violations) {
+				}
+
 				for (const violation of error.error.violations) {
 					const nomDuChamp = violation.propertyPath;
 					const message = violation.message;
@@ -99,6 +119,7 @@ export class RegisterComponent implements OnInit {
 						invalid: message,
 					});
 				}
+				return;
 			}
 		);
 	}
