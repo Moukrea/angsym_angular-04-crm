@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../auth/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
 	selector: 'app-navbar',
@@ -37,18 +39,25 @@ import { Component, OnInit } from '@angular/core';
 					</li>
 				</ul>
 				<ul class="navbar-nav ml-auto">
-					<li class="nav-item">
-						<a routerLink="/register" class="nav-link"
-							>Inscription</a
+					<ng-container *ngIf="!auth.isAuthenticated()">
+						<li class="nav-item">
+							<a routerLink="/register" class="nav-link"
+								>Inscription</a
+							>
+						</li>
+						<li class="nav-item">
+							<a routerLink="/login" class="btn btn-primary"
+								>Connexion</a
+							>
+						</li>
+					</ng-container>
+					<li class="nav-item" *ngIf="auth.isAuthenticated()">
+						<button
+							class="btn btn-warning"
+							(click)="handleLogout()"
 						>
-					</li>
-					<li class="nav-item">
-						<a routerLink="/login" class="btn btn-primary"
-							>Connexion</a
-						>
-					</li>
-					<li class="nav-item">
-						<button class="btn btn-warning">Déconnexion</button>
+							Déconnexion
+						</button>
 					</li>
 				</ul>
 			</div>
@@ -57,7 +66,13 @@ import { Component, OnInit } from '@angular/core';
 	styles: [],
 })
 export class NavbarComponent implements OnInit {
-	constructor() {}
+	constructor(public auth: AuthService, private router: Router) {}
 
 	ngOnInit(): void {}
+
+	handleLogout() {
+		this.auth.logout();
+
+		this.router.navigateByUrl('/login');
+	}
 }

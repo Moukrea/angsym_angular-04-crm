@@ -11,6 +11,9 @@ import { AuthService } from './auth.service';
 	selector: 'app-login',
 	template: `
 		<h1>Connexion au CRM</h1>
+		<div class="alert alert-danger" *ngIf="error">
+			Il y a une erreur dans votre email et/ou votre mot de passe
+		</div>
 		<form [formGroup]="form" (ngSubmit)="handleSubmit()">
 			<div class="form-group">
 				<input
@@ -74,6 +77,7 @@ export class LoginComponent implements OnInit {
 		password: new FormControl('', [Validators.required]),
 	});
 	submitted = false;
+	error = false;
 
 	constructor(private auth: AuthService) {}
 
@@ -86,8 +90,12 @@ export class LoginComponent implements OnInit {
 		}
 
 		this.auth.authenticate(this.form.value).subscribe(
-			(data) => console.log(data),
-			(error) => console.log(error)
+			(data) => {
+				this.error = false;
+			},
+			(error) => {
+				console.log(error);
+			}
 		);
 	}
 }
