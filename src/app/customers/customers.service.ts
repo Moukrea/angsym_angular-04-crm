@@ -34,7 +34,7 @@ export class CustomersService {
 		);
 	}
 
-	add(customer: Customer) {
+	create(customer: Customer) {
 		return this.http.post<Customer>(
 			environment.apiUrl + '/customers',
 			customer

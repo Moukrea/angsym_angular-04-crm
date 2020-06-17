@@ -6,6 +6,7 @@ import {
 	RequiredValidator,
 } from '@angular/forms';
 import { AuthService } from './auth.service';
+import { Router } from '@angular/router';
 
 @Component({
 	selector: 'app-login',
@@ -79,7 +80,7 @@ export class LoginComponent implements OnInit {
 	submitted = false;
 	error = false;
 
-	constructor(private auth: AuthService) {}
+	constructor(private auth: AuthService, private router: Router) {}
 
 	ngOnInit(): void {}
 
@@ -92,6 +93,7 @@ export class LoginComponent implements OnInit {
 		this.auth.authenticate(this.form.value).subscribe(
 			(data) => {
 				this.error = false;
+				this.router.navigateByUrl('/customers');
 			},
 			(error) => {
 				console.log(error);

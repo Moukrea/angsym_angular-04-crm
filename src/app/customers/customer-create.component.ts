@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CustomersService } from './customers.service';
 import { Customer } from './customer';
-import { ActivatedRoute, Router } from '@angular/router';
-import { map, switchMap } from 'rxjs/operators';
+import { Router } from '@angular/router';
 import { FormGroup, FormControl } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -69,7 +68,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 	`,
 	styles: [],
 })
-export class CustomerAddComponent implements OnInit {
+export class CustomerCreateComponent implements OnInit {
 	form = new FormGroup({
 		fullName: new FormControl(''),
 		email: new FormControl(''),
@@ -84,7 +83,7 @@ export class CustomerAddComponent implements OnInit {
 
 	handleSubmit() {
 		this.submitted = true;
-		this.service.add(this.form.value).subscribe(
+		this.service.create(this.form.value).subscribe(
 			(customer) => {
 				this.router.navigateByUrl('/customers');
 			},
