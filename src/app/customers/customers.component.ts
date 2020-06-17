@@ -3,6 +3,7 @@ import { CustomersService } from './customers.service';
 import { Customer } from './customer';
 import { UiService } from '../ui/ui.service';
 import { ToastrService } from 'ngx-toastr';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
 	selector: 'app-customers',
@@ -22,7 +23,7 @@ import { ToastrService } from 'ngx-toastr';
 				</tr>
 			</thead>
 			<tbody>
-				<tr *ngFor="let c of customers">
+				<tr *ngFor="let c of getCustomersForCurrentPage()">
 					<td>{{ c.id }}</td>
 					<td>{{ c.fullName }}</td>
 					<td>{{ c.email }}</td>
@@ -43,24 +44,50 @@ import { ToastrService } from 'ngx-toastr';
 				</tr>
 			</tbody>
 		</table>
+
+		<app-pagination
+			[currentPage]="currentPage"
+			[items]="customers.length"
+			(pageChanged)="currentPage = $event"
+		></app-pagination>
 	`,
 	styles: [],
 })
 export class CustomersComponent implements OnInit {
 	customers: Customer[] = [];
+	currentPage = 1;
+	pages = [];
 
 	constructor(
 		private customerService: CustomersService,
 		private ui: UiService,
-		private toastr: ToastrService
+		private toastr: ToastrService,
+		private route: ActivatedRoute
 	) {}
 
+	getCustomersForCurrentPage() {
+		//Retourner les utilisateurs représentant la page actuelle
+		// currentPage == 1
+		// Customers => 0
+		// currentPage == 2
+		// Customers => 10
+		// currentPage == 3
+		// Customers => 20
+		const startIndex = (this.currentPage - 1) * 10;
+
+		return this.customers.slice(startIndex, startIndex + 10);
+	}
+
 	ngOnInit(): void {
-		this.ui.setLoading(true);
-		this.customerService.findAll().subscribe((customers) => {
-			this.customers = customers;
-			this.ui.setLoading(false);
-		});
+		// Without resolver
+		// this.ui.setLoading(true);
+		// this.customerService.findAll().subscribe((customers) => {
+		// 	this.customers = customers;
+		// 	this.ui.setLoading(false);
+		// });
+
+		// With resolver
+		this.customers = this.route.snapshot.data.customers;
 	}
 
 	handleDelete(c: Customer) {

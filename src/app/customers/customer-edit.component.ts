@@ -88,16 +88,23 @@ export class CustomerEditComponent implements OnInit {
 
 	ngOnInit(): void {
 		// TODO : Aller cherche le customer via l'API (basé sur l'id qui est dans la route)
-		this.route.paramMap
-			.pipe(
-				map((params) => +params.get('id')),
-				switchMap((id) => this.service.find(id))
-			)
-			.subscribe((customer: Customer) => {
-				// TODO : Gérer le chargement des données
-				this.customer = customer;
-				this.form.patchValue(customer);
-			});
+		// Without resolver
+		// this.route.paramMap
+		// 	.pipe(
+		// 		map((params) => +params.get('id')),
+		// 		switchMap((id) => this.service.find(id))
+		// 	)
+		// 	.subscribe((customer: Customer) => {
+		// 		// TODO : Gérer le chargement des données
+		// 		this.customer = customer;
+		// 		this.form.patchValue(customer);
+		// 	});
+
+		//With resolver
+		this.route.data.subscribe((data) => {
+			this.customer = data.customer;
+			this.form.patchValue(this.customer);
+		});
 	}
 
 	handleSubmit() {

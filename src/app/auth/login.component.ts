@@ -7,6 +7,7 @@ import {
 } from '@angular/forms';
 import { AuthService } from './auth.service';
 import { Router } from '@angular/router';
+import { UiService } from '../ui/ui.service';
 
 @Component({
 	selector: 'app-login',
@@ -80,7 +81,11 @@ export class LoginComponent implements OnInit {
 	submitted = false;
 	error = false;
 
-	constructor(private auth: AuthService, private router: Router) {}
+	constructor(
+		private auth: AuthService,
+		private router: Router,
+		private ui: UiService
+	) {}
 
 	ngOnInit(): void {}
 
@@ -90,13 +95,17 @@ export class LoginComponent implements OnInit {
 			return;
 		}
 
+		this.ui.setLoading(true);
+
 		this.auth.authenticate(this.form.value).subscribe(
 			(data) => {
 				this.error = false;
+				this.ui.setLoading(false);
 				this.router.navigateByUrl('/customers');
 			},
 			(error) => {
-				console.log(error);
+				this.ui.setLoading(false);
+				this.error = true;
 			}
 		);
 	}

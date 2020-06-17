@@ -8,17 +8,50 @@ import { CustomerCreateComponent } from './customers/customer-create.component';
 import { InvoicesComponent } from './invoices/invoices.component';
 import { InvoicesCreateComponent } from './invoices/invoices-create.component';
 import { InvoicesEditComponent } from './invoices/invoices-edit.component';
+import { AuthGuard } from './auth/auth.guard';
+import { FormGuard } from './ui/form.guard';
+import { CustomersResolverService } from './customers/customers-resolver.service';
 
 const routes: Routes = [
 	{ path: 'register', component: RegisterComponent },
 	{ path: 'login', component: LoginComponent },
-	{ path: '', component: CustomersComponent },
-	{ path: 'customers', component: CustomersComponent },
-	{ path: 'customers/create', component: CustomerCreateComponent },
-	{ path: 'customers/:id', component: CustomerEditComponent },
-	{ path: 'invoices', component: InvoicesComponent },
-	{ path: 'invoices/create', component: InvoicesCreateComponent },
-	{ path: 'invoices/:id', component: InvoicesEditComponent },
+	{ path: '', component: CustomersComponent, canActivate: [AuthGuard] },
+	{
+		path: 'customers',
+		component: CustomersComponent,
+		canActivate: [AuthGuard],
+		resolve: { customers: CustomersResolverService },
+	},
+	{
+		path: 'customers/create',
+		component: CustomerCreateComponent,
+		canActivate: [AuthGuard],
+		canDeactivate: [FormGuard],
+	},
+	{
+		path: 'customers/:id',
+		component: CustomerEditComponent,
+		canActivate: [AuthGuard],
+		canDeactivate: [FormGuard],
+		resolve: { customer: CustomersResolverService },
+	},
+	{
+		path: 'invoices',
+		component: InvoicesComponent,
+		canActivate: [AuthGuard],
+	},
+	{
+		path: 'invoices/create',
+		component: InvoicesCreateComponent,
+		canActivate: [AuthGuard],
+		canDeactivate: [FormGuard],
+	},
+	{
+		path: 'invoices/:id',
+		component: InvoicesEditComponent,
+		canActivate: [AuthGuard],
+		canDeactivate: [FormGuard],
+	},
 ];
 
 @NgModule({
