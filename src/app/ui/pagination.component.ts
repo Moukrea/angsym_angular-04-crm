@@ -1,4 +1,12 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import {
+	Component,
+	OnInit,
+	Input,
+	Output,
+	EventEmitter,
+	SimpleChange,
+	SimpleChanges,
+} from '@angular/core';
 
 @Component({
 	selector: 'app-pagination',
@@ -53,6 +61,18 @@ export class PaginationComponent implements OnInit {
 	constructor() {}
 
 	ngOnInit(): void {
+		// const pagesCount = Math.ceil(this.items / this.itemsPerPage);
+		// this.pages = [];
+		// for (let i = 1; i <= pagesCount; i++) {
+		// 	this.pages.push(i);
+		// }
+	}
+
+	ngOnChanges(changes: SimpleChanges) {
+		if (!changes.items) {
+			return;
+		}
+
 		const pagesCount = Math.ceil(this.items / this.itemsPerPage);
 
 		this.pages = [];

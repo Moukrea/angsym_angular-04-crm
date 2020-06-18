@@ -11,6 +11,7 @@ import { CustomersModule } from './customers/customers.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { NavbarComponent } from './ui/navbar.component';
 import { PaginationComponent } from './ui/pagination.component';
+import { InboxModule } from './inbox/inbox.module';
 
 @NgModule({
 	declarations: [
@@ -36,6 +37,7 @@ import { PaginationComponent } from './ui/pagination.component';
 		CustomersModule,
 		InvoicesModule,
 		AuthModule,
+		InboxModule,
 	],
 	providers: [],
 	bootstrap: [AppComponent],

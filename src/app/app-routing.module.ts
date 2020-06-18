@@ -11,11 +11,19 @@ import { InvoicesEditComponent } from './invoices/invoices-edit.component';
 import { AuthGuard } from './auth/auth.guard';
 import { FormGuard } from './ui/form.guard';
 import { CustomersResolverService } from './customers/customers-resolver.service';
+import { InboxComponent } from './inbox/inbox.component';
+import { MessageCreateComponent } from './inbox/message-create.component';
+import { MessageComponent } from './inbox/message.component';
 
 const routes: Routes = [
 	{ path: 'register', component: RegisterComponent },
 	{ path: 'login', component: LoginComponent },
-	{ path: '', component: CustomersComponent, canActivate: [AuthGuard] },
+	{
+		path: '',
+		component: CustomersComponent,
+		canActivate: [AuthGuard],
+		resolve: { customers: CustomersResolverService },
+	},
 	{
 		path: 'customers',
 		component: CustomersComponent,
@@ -51,6 +59,14 @@ const routes: Routes = [
 		component: InvoicesEditComponent,
 		canActivate: [AuthGuard],
 		canDeactivate: [FormGuard],
+	},
+	{
+		path: 'inbox',
+		component: InboxComponent,
+		children: [
+			{ path: 'create', component: MessageCreateComponent },
+			{ path: ':id', component: MessageComponent },
+		],
 	},
 ];
 

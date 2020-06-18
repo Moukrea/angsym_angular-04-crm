@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { InvoicesService } from './invoices.service';
 import { Invoice } from './invoice';
-import { map } from 'rxjs/operators';
+import { map, switchMap, tap } from 'rxjs/operators';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
 	selector: 'app-invoices',
@@ -56,22 +58,54 @@ import { map } from 'rxjs/operators';
 				</tr>
 			</tbody>
 		</table>
+		<app-pagination
+			[itemsPerPage]="invoices.length"
+			[currentPage]="currentPage"
+			[items]="totalItems"
+			(pageChanged)="handlePageChange($event)"
+		></app-pagination>
 	`,
 	styles: [],
 })
-export class InvoicesComponent implements OnInit {
+export class InvoicesComponent implements OnInit, OnDestroy {
 	invoices: Invoice[] = [];
+	totalItems: number;
+	currentPage = 1;
 
-	constructor(private invoiceService: InvoicesService) {}
+	invoicesSubscription: Subscription;
+	deleteSubscription: Subscription;
+
+	subscriptions: Subscription[] = [];
+
+	constructor(
+		private invoiceService: InvoicesService,
+		private route: ActivatedRoute,
+		private router: Router
+	) {}
 
 	ngOnInit(): void {
-		this.invoiceService.findAll().subscribe((invoices) => {
-			// Small personnal edit, price is actually properly displayed (as it was, multiplied by 100 in Symfony)
-			invoices.forEach((invoice) => {
-				invoice.amount /= 100;
+		const subscription = this.route.queryParamMap
+			.pipe(
+				map((params) => (params.has('page') ? +params.get('page') : 1)),
+				tap((page) => (this.currentPage = page)),
+				switchMap((page) => this.invoiceService.findAll(page))
+			)
+			.subscribe((paginatedInvoices) => {
+				// Small personnal edit, price is actually properly displayed (as it was, multiplied by 100 in Symfony)
+				paginatedInvoices.items.forEach((invoice) => {
+					invoice.amount /= 100;
+				});
+				this.invoices = paginatedInvoices.items;
+				this.totalItems = paginatedInvoices.total;
 			});
-			this.invoices = invoices;
-		});
+
+		this.subscriptions.push(subscription);
+	}
+
+	ngOnDestroy() {
+		for (const subscription of this.subscriptions) {
+			subscription.unsubscribe();
+		}
 	}
 
 	handleDelete(i: Invoice) {
@@ -80,11 +114,30 @@ export class InvoicesComponent implements OnInit {
 		const index = this.invoices.indexOf(i);
 		this.invoices.splice(index, 1);
 
-		this.invoiceService.delete(i.id).subscribe(
+		const subscription = this.invoiceService.delete(i.id).subscribe(
 			(invoice) => {},
 			(error) => {
 				this.invoices = invoicesCopy;
 			}
 		);
+
+		this.subscriptions.push(subscription);
+	}
+
+	handlePageChange(page: number) {
+		// this.currentPage = page;
+
+		// this.invoiceService
+		// 	.findAll(this.currentPage)
+		// 	.subscribe((paginatedInvoices) => {
+		// 		// Small personnal edit, price is actually properly displayed (as it was, multiplied by 100 in Symfony)
+		// 		paginatedInvoices.items.forEach((invoice) => {
+		// 			invoice.amount /= 100;
+		// 		});
+		// 		this.invoices = paginatedInvoices.items;
+		// 		this.totalItems = paginatedInvoices.total;
+		// 	});
+
+		this.router.navigateByUrl('/invoices?page=' + page);
 	}
 }

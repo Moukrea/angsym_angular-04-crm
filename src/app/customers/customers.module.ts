@@ -14,7 +14,6 @@ import { PaginationComponent } from '../ui/pagination.component';
 		CustomersComponent,
 		CustomerEditComponent,
 		CustomerCreateComponent,
-		PaginationComponent,
 	],
 	imports: [SharedModule],
 })
